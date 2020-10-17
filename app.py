@@ -1,28 +1,34 @@
+import os
+import json
+import time
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+import requests
+import redis
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from flask_cors import CORS
-from threading import Thread, Event
+from threading import Thread
 from flask_sqlalchemy import SQLAlchemy
-import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+from websocket import create_connection
+from utils import get_current_code
+
+# from models import Action, Exchange
 
 try:
     import thread
 except ImportError:
     import _thread as thread
-import time
 
-import requests
-import json
-import websocket
-from websocket import create_connection
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
-db = SQLAlchemy(app)
-cors = CORS(app, resources={r"/getData/*": {"origins": "http://localhost:8080/"}})
+
 app.config['SECRET_KEY'] = 'secret!'
 app.config['DEBUG'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
+
+db = SQLAlchemy(app)
+cors = CORS(app, resources={r"/getData/*": {"origins": "http://localhost:8080/"}})
 socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:8080")
 
 thread1 = Thread()
@@ -31,6 +37,8 @@ thread2 = Thread()
 
 @app.route('/')
 def index():
+    code = get_current_code()
+    print(code)
     res = requests.get('https://api.upbit.com/v1/candles/minutes/1?market=KRW-BTC&count=60').text
     return render_template('index.html', res=res)
 
@@ -49,12 +57,6 @@ def run_upbit():
         time.sleep(.5)
 
 
-def hello():
-    while True:
-        time.sleep(0.5)
-        print('helo')
-
-
 @socketio.on('getData')
 def handle_my_custom_event(json):
     run_upbit()
@@ -66,7 +68,7 @@ def connect():
     print('Client connected')
     global thread1
     thread1 = socketio.start_background_task(run_upbit)
-    thread2 = socketio.start_background_task(hello)
+    # thread2 = socketio.start_background_task(hello)
 
 
 @socketio.on('disconnect')

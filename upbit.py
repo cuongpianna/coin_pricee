@@ -18,6 +18,7 @@ def add_tick_action(ms):
     action = Action(exchange_id=tick.id, low=ms['low_price'], open=ms['opening_price'], high=ms['high_price'],
                     close=ms['trade_price'], timestamp=ms['timestamp'], real_timestamp=datetime.now(),
                     created_at=datetime.now())
+    print(action)
     db.session.add(action)
     db.session.commit()
 
@@ -61,9 +62,11 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
-    ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
-                                on_message=on_message,
-                                on_error=on_error,
-                                on_close=on_close)
-    ws.on_open = on_open
-    ws.run_forever()
+    while True:
+        ws = websocket.WebSocketApp("wss://api.upbit.com/websocket/v1",
+                                    on_message=on_message,
+                                    on_error=on_error,
+                                    on_close=on_close)
+        ws.on_open = on_open
+        ws.run_forever()
+        time.sleep(0.5)
