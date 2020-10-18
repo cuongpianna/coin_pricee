@@ -19,7 +19,7 @@ try:
 except ImportError:
     import _thread as thread
 
-r = redis.Redis('178.128.26.135:6378')
+r = redis.Redis(host='178.128.26.135', port=6379)
 
 app = Flask(__name__)
 
