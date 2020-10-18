@@ -1,4 +1,9 @@
 var res = $('body').attr('data-res');
+var upbits = $('body').attr('data-upbit');
+
+var upbitExchangeData = []
+
+var bar = "1m"
 
 
 function getData1() {
@@ -14,6 +19,23 @@ function getData1() {
         }
         data.push(obj);
     }
+    return upbitExchangeData;
+}
+
+function parseData() {
+    var rp = JSON.parse(upbits);
+    var data = [];
+    for (const item of rp.reverse()) {
+        var obj = {
+            t: item.timestamp,
+            o: item.open,
+            h: item.high,
+            l: item.low,
+            c: item.close
+        }
+        data.push(obj);
+    }
+    upbitExchangeData = data;
     return data;
 }
 
@@ -26,7 +48,7 @@ var chart = new Chart(ctx, {
     data: {
         datasets: [{
             label: 'Exchange: Huobi',
-            data: getData1()
+            data: parseData()
         }]
     }
 });
@@ -74,6 +96,34 @@ var update = function () {
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
- socket.on('test', function (msg) {
-     console.log('ok')
- })
+socket.on('coin', function (msg) {
+    var data = JSON.parse(JSON.stringify(msg.ms));
+    var dataUpbit = JSON.parse(data.upbit);
+
+    if (bar == "1m") {
+        var date1 = new Date(dataUpbit.timestamp);
+        var date2 = new Date(upbitExchangeData[upbitExchangeData.length - 1].t);
+
+        var objUpbit = {
+            t: dataUpbit.timestamp,
+            o: dataUpbit.opening_price,
+            h: dataUpbit.high_price,
+            l: dataUpbit.low_price,
+            c: dataUpbit.trade_price
+        };
+
+        if (dataUpbit.timestamp != upbitExchangeData[upbitExchangeData.length - 1].t) {
+            upbitExchangeData.push(objUpbit)
+            upbitExchangeData.shift()
+
+            // chart.data.datasets.forEach(function (dataset) {
+            //
+            // });
+
+            chart.update()
+        }
+    }
+
+    console.log(upbitExchangeData)
+
+})

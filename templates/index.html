@@ -12,7 +12,7 @@
     <script src="./static/chart-candle.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="./static/style.css">
 </head>
-<body data-res="{{ res }}">
+<body data-res="{{ res }}", data-upbit="{{ upbits }}">
 <div class="row">
     <div class="col-left">
         <h3>Exchange: Upbit</h3>
@@ -76,65 +76,6 @@
 </div>
 
 <div class="row">
-    <div class="col-left">
-        <h3>Exchange: Binance</h3>
-        <table class="styled-table">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Value</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr data-item="btc">
-                <td>BTC</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>ETH</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>EOS</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>ADA</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>LTC</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>BCH</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>BSV</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>XRP</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>ETC</td>
-                <td>2.10%</td>
-            </tr>
-            <tr data-item="btc">
-                <td>TRX</td>
-                <td>2.10%</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="col-right">
-        <div>
-            <canvas id="chart2"></canvas>
-        </div>
-    </div>
 </div>
 {#		<div>#}
 {#			Bar Type:#}
