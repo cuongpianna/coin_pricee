@@ -116,14 +116,45 @@ socket.on('coin', function (msg) {
             upbitExchangeData.push(objUpbit)
             upbitExchangeData.shift()
 
-            // chart.data.datasets.forEach(function (dataset) {
-            //
-            // });
-
             chart.update()
         }
     }
 
-    console.log(upbitExchangeData)
+    // console.log(upbitExchangeData)
 
+})
+
+$('.upbit-row').click(function () {
+    socket.emit('currency', {value: $(this).attr('data-item')});
+
+    $.post('/change_currency/', {
+        data: $(this).attr('data-item'),
+    }).done(function (response) {
+        let data = [];
+        for (const item of response.result.reverse()) {
+            var obj = {
+                t: item.timestamp,
+                o: item.open,
+                h: item.high,
+                l: item.low,
+                c: item.close
+            }
+            data.push(obj);
+        }
+        upbitExchangeData = data;
+
+        chart.data.datasets.forEach(function (dataset) {
+            dataset.data = upbitExchangeData;
+        });
+
+        chart.update()
+    }).fail(function () {
+        // $(destElem).text("{{ _('Error: Could not contact server.') }}");
+    });
+
+    // $.post({
+    //     type: 'POST',
+    //     url: "/change_currency/",
+    //     data: {'data': $(this).attr('data-item')}
+    // });
 })

@@ -16,7 +16,7 @@ prices = client.get_all_tickers()
 
 # withdraw 100 ETH
 # check docs for assumptions around withdrawals
-from bi.exceptions import BinanceAPIException, BinanceWithdrawException
+from binance.exceptions import BinanceAPIException, BinanceWithdrawException
 try:
     result = client.withdraw(
         asset='ETH',
@@ -44,7 +44,7 @@ def process_message(msg):
     print(msg)
     # do something
 
-from bi.websockets import BinanceSocketManager
+from binance.websockets import BinanceSocketManager
 bm = BinanceSocketManager(client)
 bm.start_aggtrade_socket('BNBBTC', process_message)
 bm.start()

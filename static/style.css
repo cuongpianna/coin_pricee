@@ -54,3 +54,7 @@ table th, table td {
     font-weight: bold;
     color: #009879;
 }
+
+.upbit-row{
+    cursor: pointer;
+}

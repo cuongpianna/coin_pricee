@@ -1,11 +1,12 @@
 import os
 import json
 import time
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 import requests
 import redis
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from threading import Thread
@@ -28,10 +29,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ap
 
 db = SQLAlchemy(app)
 cors = CORS(app, resources={r"/getData/*": {"origins": "http://localhost:8080/"}})
-socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:8080")
+socketio = SocketIO(app)
+socketio.init_app(app, cors_allowed_origins="*")
 
 thread1 = Thread()
 thread2 = Thread()
+
 
 class Exchange(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,7 +71,49 @@ def index():
             'high': item.high,
             'low': item.low
         })
-    return render_template('index.html', res=res, upbits=json.dumps(result_upbits))
+
+    upbit_btc = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-btc').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_eth = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-eth').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_eos = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-eos').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_ada = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-ada').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_ltc = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-ltc').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_bch = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-bch').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_bsv = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-bsv').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_xrp = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-xrp').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_etc = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-etc').first().id).order_by(
+        Action.timestamp.desc()).first()
+    upbit_trx = Action.query.filter_by(exchange_id=Exchange.query.filter_by(name='upbit-tick-trx').first().id).order_by(
+        Action.timestamp.desc()).first()
+    prices = [upbit_btc.close, upbit_eth.close, upbit_eos.close, upbit_ada.close, upbit_ltc.close, upbit_bch.close,
+              upbit_bsv.close, upbit_xrp.close, upbit_etc.close, upbit_trx.close]
+    return render_template('index.html', res=res, upbits=json.dumps(result_upbits), prices=prices)
+
+
+@app.route('/change_currency/', methods=['GET', 'POST'])
+def change_currency():
+    exchange_upbit = Exchange.query.filter_by(name='upbit-1m-{}'.format(request.form['data'])).first()
+
+    upbits = Action.query.filter_by(exchange_id=exchange_upbit.id).order_by(Action.timestamp.desc()).limit(50).all()
+    result = []
+    for item in upbits:
+        result.append({
+            'timestamp': item.timestamp,
+            'open': item.open,
+            'close': item.close,
+            'high': item.high,
+            'low': item.low
+        })
+    return jsonify({
+        'result': result
+    })
 
 
 def run_upbit():
@@ -88,31 +133,19 @@ def run_upbit():
         socketio.emit('coin', {"ms": rp})
         time.sleep(bar)
 
-    # while True:
-    #     ws = create_connection("wss://api.upbit.com/websocket/v1")
-    #     print('ssss')
-    #     ws.send('[{"ticket":"test"},{"format":"SIMPLE"},{"type":"ticker","codes":["KRW-BTC"]}]')
-    #     print("Sent")
-    #     print("Receiving...")
-    #     result = ws.recv()
-    #     print("Received '%s'" % result)
-    #     ws.close()
-    #     socketio.emit('test', {'number': 'cuong'})
-    #     time.sleep(.5)
-
-
-@socketio.on('getData')
-def handle_my_custom_event(json):
-    run_upbit()
-    return 'one', 2
-
 
 @socketio.on('connect')
 def connect():
-    print('Client connected')
+    # print('Client connected')
     global thread1
     thread1 = socketio.start_background_task(run_upbit)
     # thread2 = socketio.start_background_task(hello)
+
+
+@socketio.on('currency')
+def currency(message):
+    value = message['value']
+    r.set('current', value)
 
 
 @socketio.on('disconnect')
@@ -121,5 +154,5 @@ def test_check_disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
     # app.run()
