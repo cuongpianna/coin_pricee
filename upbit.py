@@ -5,7 +5,7 @@ from app import db, Exchange, Action
 import redis
 from datetime import datetime
 
-r = redis.Redis()
+r = redis.Redis('178.128.26.135:6378')
 
 try:
     import thread
