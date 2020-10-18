@@ -131,6 +131,21 @@ def run_upbit():
             "upbit": upbit
         }
         socketio.emit('coin', {"ms": rp})
+
+        btc = json.loads(r.get('upbit:data:btc').decode('utf-8'))['trade_price']
+        eth = json.loads(r.get('upbit:data:eth').decode('utf-8'))['trade_price']
+        eos = json.loads(r.get('upbit:data:eos').decode('utf-8'))['trade_price']
+        ada = json.loads(r.get('upbit:data:ada').decode('utf-8'))['trade_price']
+        ltc = json.loads(r.get('upbit:data:ltc').decode('utf-8'))['trade_price']
+        bch = json.loads(r.get('upbit:data:bch').decode('utf-8'))['trade_price']
+        bsv = json.loads(r.get('upbit:data:bsv').decode('utf-8'))['trade_price']
+        xrp = json.loads(r.get('upbit:data:xrp').decode('utf-8'))['trade_price']
+        etc = json.loads(r.get('upbit:data:etc').decode('utf-8'))['trade_price']
+        trx = json.loads(r.get('upbit:data:trx').decode('utf-8'))['trade_price']
+
+        prices = [btc, eth, eos, ada, ltc, bch, bsv, xrp, eth, trx]
+
+        socketio.emit('price', {'ms': prices})
         time.sleep(bar)
 
 

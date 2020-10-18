@@ -149,12 +149,17 @@ $('.upbit-row').click(function () {
 
         chart.update()
     }).fail(function () {
-        // $(destElem).text("{{ _('Error: Could not contact server.') }}");
     });
 
-    // $.post({
-    //     type: 'POST',
-    //     url: "/change_currency/",
-    //     data: {'data': $(this).attr('data-item')}
-    // });
+})
+
+
+socket.on('price', function (msg) {
+    var data = JSON.parse(JSON.stringify(msg.ms));
+
+    for(const [index, value] of data.entries()) {
+        var e = '.upbit' + (index + 1);
+        $(e).html(value);
+    }
+
 })
